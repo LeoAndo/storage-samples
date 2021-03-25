@@ -82,8 +82,7 @@ public class MainActivity extends Activity {
         Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
         sharingIntent.setType("text/plain");
         sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, mEditBody.getText().toString());
-        // (Optional) If you want a preview title, set it with Intent.EXTRA_TITLE
-        // Intent.EXTRA_TITLE: シェアするリンクテキストのプレビュー機能が OS: 10から追加された。
+        // (Optional) If you want a preview title, set it with Intent.EXTRA_TITLE.
         sharingIntent.putExtra(Intent.EXTRA_TITLE, getString(R.string.send_intent_title));
 
         // (Optional) if you want a preview thumbnail, create a content URI and add it
