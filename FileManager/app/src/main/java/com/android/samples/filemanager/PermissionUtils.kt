@@ -49,6 +49,7 @@ fun openPermissionSettings(activity: AppCompatActivity) {
         requestStoragePermissionApi30(activity)
     }
     else {
+        // OS: 10までは従来の方法で設定アプリのパーミッション許可画面を開く
         activity.startActivity(
             Intent(
                 Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
@@ -93,6 +94,7 @@ fun requestStoragePermission(activity: AppCompatActivity) {
     }
 }
 
+// OS 11からexternal storageのアクセス許可されてるかのチェックには、[AppOpsManager]を使う.
 @RequiresApi(30)
 fun checkStoragePermissionApi30(activity: AppCompatActivity): Boolean {
     val appOps = activity.getSystemService(AppOpsManager::class.java)
@@ -105,6 +107,7 @@ fun checkStoragePermissionApi30(activity: AppCompatActivity): Boolean {
     return mode == AppOpsManager.MODE_ALLOWED
 }
 
+// OS 11からACTION_MANAGE_ALL_FILES_ACCESS_PERMISSIONのintent actionを使ってexternal storageへのアクセス許可設定画面を開く.
 @RequiresApi(30)
 fun requestStoragePermissionApi30(activity: AppCompatActivity) {
     val intent = Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION)
@@ -112,6 +115,7 @@ fun requestStoragePermissionApi30(activity: AppCompatActivity) {
     activity.startActivityForResult(intent, MANAGE_EXTERNAL_STORAGE_PERMISSION_REQUEST)
 }
 
+// OS 10までは従来の方法で、external storageのアクセス許可されてるかのチェックを行う.
 @RequiresApi(19)
 fun checkStoragePermissionApi19(activity: AppCompatActivity): Boolean {
     val status =
@@ -120,6 +124,7 @@ fun checkStoragePermissionApi19(activity: AppCompatActivity): Boolean {
     return status == PackageManager.PERMISSION_GRANTED
 }
 
+// OS 10までは従来の方法で、external storageへのアクセス許可設定ダイアログを開く.
 @RequiresApi(19)
 fun requestStoragePermissionApi19(activity: AppCompatActivity) {
     val permissions = arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
