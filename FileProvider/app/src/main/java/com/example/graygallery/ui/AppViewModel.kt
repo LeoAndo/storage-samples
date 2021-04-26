@@ -28,9 +28,9 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.graygallery.R
 import com.example.graygallery.utils.Source
+import com.example.graygallery.utils.applyGrayscaleFilter
 import com.example.graygallery.utils.copyImageFromStream
 import com.example.graygallery.utils.generateFilename
-import com.example.graygallery.utils.applyGrayscaleFilter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -41,7 +41,7 @@ import java.io.FileOutputStream
 
 private const val FILEPATH_XML_KEY = "files-path"
 private const val RANDOM_IMAGE_URL = "https://source.unsplash.com/random/500x500"
-val ACCEPTED_MIMETYPES = arrayOf("image/jpeg", "image/png")
+val ACCEPTED_MIMETYPES = arrayOf("image/jpeg", "image/png") // ファイルピッカーから選択したい画像のファイル形式.
 
 class AppViewModel(application: Application) : AndroidViewModel(application) {
     private val httpClient by lazy { OkHttpClient() }
@@ -69,6 +69,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    // アプリ固有のディレクトリに撮影画像を保存する.
     fun saveImageFromCamera(bitmap: Bitmap) {
         val imageFile = File(imagesFolder, generateFilename(Source.CAMERA))
         val imageStream = FileOutputStream(imageFile)
@@ -76,6 +77,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 try {
+                    // 撮影画像のモノクロ化
                     val grayscaleBitmap = withContext(Dispatchers.Default) {
                         applyGrayscaleFilter(bitmap)
                     }
@@ -92,9 +94,11 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    // 引数に渡ってきた共有ストレージ上にある、画像をアプリ固有ディレクトリにコピーする.
     fun copyImageFromUri(uri: Uri) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
+                // URIに関連付けられた画像コンテンツへのストリームを開く.
                 context.contentResolver.openInputStream(uri)?.let {
                     // TODO: Apply grayscale filter before saving image
                     copyImageFromStream(it, imagesFolder)
@@ -104,6 +108,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    // 通信処理を行い、ランダムな画像イメージを取得し、アプリ固有領域に保存する.
     fun saveRandomImageFromInternet() {
         viewModelScope.launch {
             val request = Request.Builder().url(RANDOM_IMAGE_URL).build()
@@ -125,6 +130,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    // アプリ固有ディレクトリ配下に作成したファイルを削除する.
     fun clearFiles() {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
@@ -142,20 +148,17 @@ private fun getImagesFolder(context: Context): File {
     val attributes = getAttributesFromXmlNode(xml, FILEPATH_XML_KEY)
 
     val folderPath = attributes["path"]
-        ?: error("You have to specify the sharable directory in res/xml/filepaths.xml")
+            ?: error("You have to specify the sharable directory in res/xml/filepaths.xml")
 
     return File(context.filesDir, folderPath).also {
-        if (!it.exists()) {
+        if (!it.exists()) { // ディリクトリが存在しなければ、ディレクトリ作成する.
             it.mkdir()
         }
     }
 }
 
 // TODO: Make the function suspend
-private fun getAttributesFromXmlNode(
-    xml: XmlResourceParser,
-    nodeName: String
-): Map<String, String> {
+private fun getAttributesFromXmlNode(xml: XmlResourceParser, nodeName: String): Map<String, String> {
     while (xml.eventType != XmlResourceParser.END_DOCUMENT) {
         if (xml.eventType == XmlResourceParser.START_TAG) {
             if (xml.name == nodeName) {

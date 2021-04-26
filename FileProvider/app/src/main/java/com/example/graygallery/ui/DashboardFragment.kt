@@ -25,9 +25,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContract
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.contract.ActivityResultContracts.TakePicturePreview
-import androidx.annotation.CallSuper
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
@@ -37,8 +35,8 @@ import com.google.android.material.snackbar.Snackbar
 class DashboardFragment : Fragment() {
     private val viewModel by viewModels<AppViewModel>()
     private lateinit var binding: FragmentDashboardBinding
-
     private val takePicture = registerForActivityResult(TakePicturePreview()) { bitmap ->
+        // 写真撮影後、画像データがbitmapに入る。キャンセル時はnullが渡ってくる。
         viewModel.saveImageFromCamera(bitmap)
     }
 
@@ -58,6 +56,7 @@ class DashboardFragment : Fragment() {
         binding = FragmentDashboardBinding.inflate(inflater, container, false)
 
         binding.takePicture.setOnClickListener {
+            // TakePicturePreviewは、 引数がVoidなので、nullを渡すでOK.
             takePicture.launch(null)
         }
 
@@ -81,7 +80,10 @@ class DashboardFragment : Fragment() {
     }
 }
 
+// 引数の型: Array<String>
+// 戻り値の型: Uri?
 class GetContentWithMimeTypes : ActivityResultContract<Array<String>, Uri?>() {
+    // {@link Activity#startActivityForResult} で使うインテントの作成.
     override fun createIntent(
         context: Context,
         input: Array<String>
@@ -96,11 +98,13 @@ class GetContentWithMimeTypes : ActivityResultContract<Array<String>, Uri?>() {
     override fun getSynchronousResult(
         context: Context,
         input: Array<String>
-    ): SynchronousResult<Uri?>? {
+    ): ActivityResultContract.SynchronousResult<Uri?>? {
         return null
     }
 
+    // 戻り値の処理.
     override fun parseResult(resultCode: Int, intent: Intent?): Uri? {
+        // intent.dataに選択した画像のuriが渡ってくる.
         return if (intent == null || resultCode != Activity.RESULT_OK) null else intent.data
     }
 }
