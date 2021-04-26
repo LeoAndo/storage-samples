@@ -151,7 +151,7 @@ private fun getImagesFolder(context: Context): File {
             ?: error("You have to specify the sharable directory in res/xml/filepaths.xml")
 
     return File(context.filesDir, folderPath).also {
-        if (!it.exists()) { // ディリクトリが存在しなければ、ディレクトリ作成する.
+        if (!it.exists()) {
             it.mkdir()
         }
     }
