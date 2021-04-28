@@ -61,6 +61,7 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
             _images.postValue(imageList)
 
             if (contentObserver == null) {
+                // 共有ストレージから画像ファイルを検索したい場合、[MediaStore.Images.Media.EXTERNAL_CONTENT_URI] を使う.
                 contentObserver = getApplication<Application>().contentResolver.registerObserver(
                     MediaStore.Images.Media.EXTERNAL_CONTENT_URI
                 ) {
@@ -83,6 +84,11 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
         }
     }
 
+    /**
+     * 共有ストレージからメディアファイルにアクセスする
+     * 画像ファイルを検索したい場合はメディアタイプに[Images]を使う。
+     * なので、[MediaStore.Images.Media.EXTERNAL_CONTENT_URI] を使う.
+     */
     private suspend fun queryImages(): List<MediaStoreImage> {
         val images = mutableListOf<MediaStoreImage>()
 
@@ -105,6 +111,7 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
              * For this sample, we only use a few columns of data, and so we'll request just a
              * subset of columns.
              */
+            // 抽出したいデータのカラム名を指定する.
             val projection = arrayOf(
                 MediaStore.Images.Media._ID,
                 MediaStore.Images.Media.DISPLAY_NAME,
@@ -119,12 +126,14 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
              * Note that we've included a `?` in our selection. This stands in for a variable
              * which will be provided by the next variable.
              */
+            // SQLのwhere句の指定.
             val selection = "${MediaStore.Images.Media.DATE_ADDED} >= ?"
 
             /**
              * The `selectionArgs` is a list of values that will be filled in for each `?`
              * in the `selection`.
              */
+            // where句の条件式
             val selectionArgs = arrayOf(
                 // Release day of the G1. :)
                 dateToTimestamp(day = 22, month = 10, year = 2008).toString()
@@ -210,6 +219,11 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
     private suspend fun performDeleteImage(image: MediaStoreImage) {
         withContext(Dispatchers.IO) {
             try {
+                /*
+                 Android 10以上では、[ContentResolver.delete(android.net.Uri, java.lang.String, java.lang.String[])] を実行すると、
+                 [RecoverableSecurityException]がスローされるので、中に入っている[IntentSender] を使って
+                 パーミッションリクエストして再度、削除処理を試みる必要がある。
+                 */
                 /**
                  * In [Build.VERSION_CODES.Q] and above, it isn't possible to modify
                  * or delete items in MediaStore directly, and explicit permission
@@ -227,9 +241,7 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
                 )
             } catch (securityException: SecurityException) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    val recoverableSecurityException =
-                        securityException as? RecoverableSecurityException
-                            ?: throw securityException
+                    val recoverableSecurityException = securityException as? RecoverableSecurityException ?: throw securityException
 
                     // Signal to the Activity that it needs to request permission and
                     // try the delete again if it succeeds.
@@ -272,10 +284,12 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
 /**
  * Convenience extension method to register a [ContentObserver] given a lambda.
  */
+// 指定されたUriの変更を監視する.
 private fun ContentResolver.registerObserver(
     uri: Uri,
     observer: (selfChange: Boolean) -> Unit
 ): ContentObserver {
+    Log.d(TAG, "uri: $uri") // content://media/external/images/media
     val contentObserver = object : ContentObserver(Handler()) {
         override fun onChange(selfChange: Boolean) {
             observer(selfChange)

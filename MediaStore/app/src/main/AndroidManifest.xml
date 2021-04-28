@@ -20,6 +20,7 @@
     package="com.android.samples.mediastore">
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <!-- Android 10 以上を実行しているデバイスでは、必要のないストレージ関連の権限をリクエストしない. -->
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="28" />
