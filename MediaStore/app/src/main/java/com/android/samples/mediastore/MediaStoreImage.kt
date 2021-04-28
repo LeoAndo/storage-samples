@@ -27,7 +27,9 @@ data class MediaStoreImage(
     val id: Long,
     val displayName: String,
     val dateAdded: Date,
-    val contentUri: Uri
+    val contentUri: Uri,
+    val lat: Float,
+    val long: Float
 ) {
     companion object {
         val DiffCallback = object : DiffUtil.ItemCallback<MediaStoreImage>() {

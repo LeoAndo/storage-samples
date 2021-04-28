@@ -218,7 +218,8 @@ class MainActivity : AppCompatActivity() {
     private fun requestPermissionApi29() {
         if (!haveStoragePermission()) {
             val permissions = arrayOf(
-                Manifest.permission.READ_EXTERNAL_STORAGE
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.ACCESS_MEDIA_LOCATION // 写真の位置情報の取得に必要
             )
             ActivityCompat.requestPermissions(this, permissions, READ_EXTERNAL_STORAGE_REQUEST)
         }
