@@ -2,11 +2,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.android.samples.filemanager">
 
-    <!-- OS:11 からは、External storageへのアクセスにMANAGE_EXTERNAL_STORAGEパーミッションが必要 -->
+    <!-- OS:11 からは、共有ストレージへ内の全てのファイルへのアクセスにMANAGE_EXTERNAL_STORAGEパーミッションが必要 -->
     <uses-permission
         android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
         android:minSdkVersion="30" />
-    <!-- OS:10 までは、External storageへのアクセスにREAD_EXTERNAL_STORAGEパーミッションが必要 -->
+    <!-- OS:10 までは、共有ストレージへ内の全てのファイルへのアクセスにREAD_EXTERNAL_STORAGEパーミッションが必要 -->
     <uses-permission
         android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="29" />
