@@ -63,6 +63,7 @@ class MainActivity : AppCompatActivity() {
         if (requestCode == OPEN_DIRECTORY_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
             val directoryUri = data?.data ?: return
 
+            // デバイスの再起動後もファイルへのアクセス権を維持したい場合は takePersistableUriPermission  を呼び出す必要がある.
             contentResolver.takePersistableUriPermission(
                 directoryUri,
                 Intent.FLAG_GRANT_READ_URI_PERMISSION
@@ -80,6 +81,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    // ディレクトリ選択するには、 ACTION_OPEN_DOCUMENT_TREE インテントを使ってファイルピッカーを起動する
     private fun openDirectory() {
         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
         startActivityForResult(intent, OPEN_DIRECTORY_REQUEST_CODE)

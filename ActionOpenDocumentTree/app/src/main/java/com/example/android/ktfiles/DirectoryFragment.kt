@@ -100,6 +100,7 @@ class DirectoryFragment : Fragment() {
 
     private fun openDocument(document: CachingDocumentFile) {
         try {
+            // アプリ内で読み込んだdocumentを表示できる外部アプリを起動する.
             val openIntent = Intent(Intent.ACTION_VIEW).apply {
                 flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
                 data = document.uri
