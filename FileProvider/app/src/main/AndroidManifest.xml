@@ -28,6 +28,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <!-- FileProvider を指定する. -->
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="com.example.graygallery.fileprovider"
