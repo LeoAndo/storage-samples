@@ -23,6 +23,7 @@ import android.content.Intent
 import android.content.IntentSender
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
 import android.view.LayoutInflater
@@ -78,6 +79,8 @@ class MainActivity : AppCompatActivity() {
 
         viewModel.permissionNeededForDelete.observe(this, Observer { intentSender ->
             intentSender?.let {
+                // Android 10以上では、共有ストレージのメディアファイルへの削除や変更を行う場合、
+                // [RecoverableSecurityException]から取得できる intentを使って、パーミッションリクエストする必要がある.
                 // On Android 10+, if the app doesn't have permission to modify
                 // or delete an item, it returns an `IntentSender` that we can
                 // use here to prompt the user to grant permission to delete (or modify)
@@ -100,6 +103,7 @@ class MainActivity : AppCompatActivity() {
         if (!haveStoragePermission()) {
             binding.welcomeView.visibility = View.VISIBLE
         } else {
+            // 共有ストレージへのアクセス権限[READ_EXTERNAL_STORAGE]がある場合、アプリ内に画像ファイルを表示する.
             showImages()
         }
     }
@@ -192,10 +196,29 @@ class MainActivity : AppCompatActivity() {
      * Convenience method to request [Manifest.permission.READ_EXTERNAL_STORAGE] permission.
      */
     private fun requestPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            requestPermissionApi29()
+        } else {
+            requestPermissionApi16()
+        }
+    }
+
+    // Android 9までは、共有ストレージのメディアファイルの削除、変更等のアクセスには、WRITE_EXTERNAL_STORAGEパーミッションは必要
+    private fun requestPermissionApi16() {
         if (!haveStoragePermission()) {
             val permissions = arrayOf(
                 Manifest.permission.READ_EXTERNAL_STORAGE,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE
+            )
+            ActivityCompat.requestPermissions(this, permissions, READ_EXTERNAL_STORAGE_REQUEST)
+        }
+    }
+
+    // Android 10以上では、共有ストレージのメディアファイルの削除、変更等のアクセスには、WRITE_EXTERNAL_STORAGEパーミッションは不要
+    private fun requestPermissionApi29() {
+        if (!haveStoragePermission()) {
+            val permissions = arrayOf(
+                Manifest.permission.READ_EXTERNAL_STORAGE
             )
             ActivityCompat.requestPermissions(this, permissions, READ_EXTERNAL_STORAGE_REQUEST)
         }
