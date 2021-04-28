@@ -61,7 +61,6 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
             _images.postValue(imageList)
 
             if (contentObserver == null) {
-                // 共有ストレージから画像ファイルを検索したい場合、[MediaStore.Images.Media.EXTERNAL_CONTENT_URI] を使う.
                 contentObserver = getApplication<Application>().contentResolver.registerObserver(
                     MediaStore.Images.Media.EXTERNAL_CONTENT_URI
                 ) {
