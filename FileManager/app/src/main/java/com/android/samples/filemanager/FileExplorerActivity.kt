@@ -53,7 +53,7 @@ class FileExplorerActivity : AppCompatActivity() {
         hasPermission = checkStoragePermission(this)
         if (hasPermission) {
             if (Build.VERSION.SDK_INT == Build.VERSION_CODES.Q) {
-                if (!Environment.isExternalStorageLegacy()) {
+                if (!Environment.isExternalStorageLegacy()) { // android:requestLegacyExternalStorageフラグを確認するコード.
                     binding.rationaleView.visibility = View.GONE
                     binding.legacyStorageView.visibility = View.VISIBLE
                     return
