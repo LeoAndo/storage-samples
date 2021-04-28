@@ -25,6 +25,7 @@ import android.content.ContentUris
 import android.content.IntentSender
 import android.database.ContentObserver
 import android.database.Cursor
+import android.media.ExifInterface
 import android.net.Uri
 import android.os.Build
 import android.os.Handler
@@ -197,16 +198,26 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
                      * query to get the items is the base, and the ID is the document to
                      * request there.
                      */
-                    val contentUri = ContentUris.withAppendedId(
+                    // content://media/external/images/media/35
+                    ContentUris.withAppendedId(
                         MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
                         id
-                    )
+                    ).also {
+                        // メディアファイルの位置情報を取得する.
+                        val latLong = FloatArray(2) // 0: lat, 1: long
+                        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                            MediaStore.setRequireOriginal(it)
+                        }
+                        getApplication<Application>().contentResolver.openInputStream(it)?.use { stream ->
+                            ExifInterface(stream).run { getLatLong(latLong) }
+                        }
 
-                    val image = MediaStoreImage(id, displayName, dateModified, contentUri)
-                    images += image
-
-                    // For debugging, we'll output the image objects we create to logcat.
-                    Log.v(TAG, "Added image: $image")
+                        val image = MediaStoreImage(id, displayName, dateModified, it, latLong[0], latLong[1])
+                        images += image
+                        // For debugging, we'll output the image objects we create to logcat.
+                        Log.d(TAG, "lat: ${latLong[0]}, long: ${latLong[1]}")
+                        Log.v(TAG, "Added image: $image")
+                    }
                 }
             }
         }
