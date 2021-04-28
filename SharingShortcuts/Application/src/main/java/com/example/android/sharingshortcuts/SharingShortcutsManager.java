@@ -18,6 +18,7 @@ package com.example.android.sharingshortcuts;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.Person;
@@ -78,18 +79,24 @@ public class SharingShortcutsManager {
             Contact contact = Contact.byId(id);
 
             // Item that will be sent if the shortcut is opened as a static launcher shortcut
-            Intent staticLauncherShortcutIntent = new Intent(Intent.ACTION_DEFAULT);
+            Intent staticLauncherShortcutIntent = new Intent(Intent.ACTION_SENDTO);
+            staticLauncherShortcutIntent.setData(Uri.parse("mailto:aaa@gmail.com"));
+            staticLauncherShortcutIntent.putExtra(Intent.EXTRA_TITLE, "タイトル");
+            staticLauncherShortcutIntent.putExtra(Intent.EXTRA_TEXT, "メッセージ");
 
             // Creates a new Sharing Shortcut and adds it to the list
             // The id passed in the constructor will become EXTRA_SHORTCUT_ID in the received Intent
             shortcuts.add(new ShortcutInfoCompat.Builder(context, Integer.toString(id))
+                    // 個人を対象とするショートカットを公開する場合はLongLabelにフルネームを設定する
+                    .setLongLabel(contact.getName() + " Full Name")
+                    // ShortLabelにニックネームなどの短縮名を入れる
                     .setShortLabel(contact.getName())
                     // Icon that will be displayed in the share target
                     .setIcon(IconCompat.createWithResource(context, contact.getIcon()))
                     .setIntent(staticLauncherShortcutIntent)
                     // Make this sharing shortcut cached by the system
                     // Even if it is unpublished, it can still appear on the sharesheet
-                    .setLongLived()
+                    .setLongLived() // ショートカットの永続性を高める.
                     .setCategories(contactCategories)
                     // Person objects are used to give better suggestions
                     .setPerson(new Person.Builder()
@@ -97,7 +104,7 @@ public class SharingShortcutsManager {
                             .build())
                     .build());
         }
-
+        // Sharing Shortcuts APIを実行している箇所.
         ShortcutManagerCompat.addDynamicShortcuts(context, shortcuts);
     }
 
