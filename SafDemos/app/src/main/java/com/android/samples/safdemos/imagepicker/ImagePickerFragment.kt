@@ -46,6 +46,7 @@ class ImagePickerFragment : Fragment() {
     }
 
     private fun selectImage() {
+        // ファイルピッカーで選択した画像を表示するだけの用途なら、[ACTION_GET_CONTENT]アクションを使う.
         val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
             type = IMAGE_MIME_TYPE
         }
