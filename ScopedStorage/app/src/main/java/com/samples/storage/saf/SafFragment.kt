@@ -45,6 +45,7 @@ class SafFragment : Fragment() {
 
     private val viewModel: SafFragmentViewModel by viewModels()
 
+    // CreateDocument(): Intent.ACTION_CREATE_DOCUMENTを使用する[ActivityResultContract]
     private val actionCreateDocument = registerForActivityResult(CreateDocument()) { uri ->
         // If the user returns to this fragment without creating a file, uri will be null
         // In this case, we return void
@@ -72,6 +73,7 @@ class SafFragment : Fragment() {
         Log.d("SafFragment", "Created: ${documentFile.name}, type ${documentFile.type}")
     }
 
+    // OpenDocument(): Intent.ACTION_OPEN_DOCUMENTを使用する[ActivityResultContract]
     private val actionOpenDocument = registerForActivityResult(OpenDocument()) { uri ->
         // If the user returns to this fragment without selecting a file, uri will be null
         // In this case, we return void
@@ -94,6 +96,7 @@ class SafFragment : Fragment() {
         }
     }
 
+    // OpenDocumentTree(): Intent.ACTION_OPEN_DOCUMENT_TREEを使用する[ActivityResultContract]
     private val actionOpenDocumentTree = registerForActivityResult(OpenDocumentTree()) { uri ->
         val documentUri = uri ?: return@registerForActivityResult
         val context = requireContext().applicationContext
